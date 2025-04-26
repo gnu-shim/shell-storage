@@ -58,4 +58,5 @@ map({InstanceId: .key} + .value) as $rows
   ($rows[] | [ $cols[] as $k | .[$k] // "" ])
 | @csv
 ' "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.json" > "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.csv"
-ls "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.*"
+awk '!seen[$0]++' "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.csv" > "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.csv"
+ls ${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.*
