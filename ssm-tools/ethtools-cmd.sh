@@ -51,3 +51,11 @@ echo "$OUTPUT" | sed 's/^[[:space:]]*//' | awk -F: -v NR_TOTAL="$NR_TOTAL" -v in
   }
 ' | jq --unbuffered -r 'to_entries[0]' | jq -s '.' | tee -a "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.json"
 done
+jq -r '
+map({InstanceId: .key} + .value) as $rows
+| (["InstanceId"] + ($rows | map(keys) | add | unique | map(select(. != "InstanceId")))) as $cols
+| $cols,
+  ($rows[] | [ $cols[] as $k | .[$k] // "" ])
+| @csv
+' "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.json" > "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.csv"
+ls "${COMMAND_ID}_${AWS_ACCOUNT}-${EXECUTION_TIME}.*"
